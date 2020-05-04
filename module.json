@@ -7,7 +7,7 @@
   "author": "Michael Sebelski [DasSauerkraut#3215], Initially by Moo Man",
   "url": "https://github.com/DasSauerkraut/wfrp-gwmwg",
   "manifest": "https://raw.githubusercontent.com/DasSauerkraut/wfrp-tweaks/master/module.json",
-  "download": "https://github.com/DasSauerkraut/wfrp-gwmwg/raw/master/package/wfrp-tweaks-v1.0.0.zip",
+  "download": "https://github.com/DasSauerkraut/wfrp-tweaks/raw/master/package/wfrp-tweaks-v1.0.0.zip",
   "esmodules": [ 
     "wfrp-tweaks.mjs",
     "wfrp-macros.mjs",
