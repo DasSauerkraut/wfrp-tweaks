@@ -9,4 +9,12 @@ export const registerSettings = function() {
   //   default: false,
   //   type: Boolean,
   // });
+  game.settings.register('wfrp-tweaks', 'integratedPenalties', {
+      name: "Integrated Penalties",
+      hint: "This will allow for auto-calculation of penalties from things such as fatigue, injuries, and armor.",
+      scope: 'world',
+      config: true,
+      default: false,
+      type: Boolean,
+    });
 }

@@ -46,8 +46,6 @@ export const macroHooks = function() {
             else if (itemId){
               game.items.get(itemId).update({"flags.wfrp-macros-type" : event.currentTarget.value})
             }
-            console.log(event.currentTarget.value)
-            console.log(data.item.flags["wfrp-macros-type"])
           })
           html.find(".details").append(macroInput)
         }

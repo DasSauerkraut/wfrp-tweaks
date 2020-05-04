@@ -11,6 +11,7 @@ import { registerSettings } from './modules/settings.mjs';
 import { preloadTemplates } from './modules/preloadTemplates.mjs';
 import { macroHooks } from './modules/wfrp-macros.mjs'
 import { trappingStatus } from './modules/wfrp-trappingStatus.mjs';
+import { integratedPenalties } from './modules/wfrp-integratedPenalties.mjs';
 
 /* ------------------------------------ */
 /* Initialize module					*/
@@ -27,7 +28,10 @@ Hooks.on('init', async function() {
 
 	// Start Tweaks
 	macroHooks();
+	// if(game.settings.get("wfrp-tweaks", 'trappingStatus'))
 	// trappingStatus();
+	// if(game.settings.get("wfrp-tweaks", "integratedPenalties"))
+	// 	integratedPenalties();
 });
 
 /* ------------------------------------ */
@@ -43,7 +47,7 @@ Hooks.once('setup', function() {
 /* ------------------------------------ */
 Hooks.once('ready', function() {
 	// Do anything once the module is ready
-	CONFIG.debug.hooks = true;
+	// CONFIG.debug.hooks = true;
 });
 
 // Add any additional hooks if necessary
