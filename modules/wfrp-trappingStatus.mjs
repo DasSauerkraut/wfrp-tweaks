@@ -3,10 +3,7 @@ const calculateAdjustedStatus = (missing, currentStatus) => {
     let level = parseInt(currentStatus.split(" ")[1]);
     let newTier = "";
     let newLevel = 0;
-    let tierAbbrev = ""
-    
-    console.log(`Missing ${missing}, ${tier} ${level}`)
-    console.log(level-missing)
+
     if(level - missing <= 0){
         if(tier !== "Brass"){
             newTier = (tier == "Silver" ? "Brass" : "Silver")
@@ -20,28 +17,51 @@ const calculateAdjustedStatus = (missing, currentStatus) => {
         newLevel = level - missing;
     }
 
-    if(newTier == "Silver")
-        tierAbbrev = "s";
-    else if(newTier == "Gold")
-        tierAbbrev = "g";
-    else
-        tierAbbrev == "b"
-    return {
-        string: `${newTier} ${newLevel}`,
-        tier: tierAbbrev,
-        standing: newLevel
-    }
+    return `${newTier} ${newLevel}`
 }
 
 const formatCareerStatus = (status) =>{
     let newStatus = "";
     if(status.tier == "s")
         newStatus = "Silver";
-    else if(status.tier == "g")
+    if(status.tier == "g")
         newStatus = "Gold";
-    else
-        newStatus == "Brass"
+    if(status.tier == "b")
+        newStatus = "Brass"
+
     return `${newStatus} ${status.standing}`
+}
+
+const formLoaded = (element) => {
+    return new Promise(resolve => {
+      function check() {
+        if (document.getElementsByClassName(element)) {
+            console.log('elements found!')
+          resolve();
+        } else {
+          setTimeout(check, 30);
+        }
+      }
+      check();
+    })
+  }
+
+const trappingListStyling = async(missingTrappings) => {
+    console.log('trappingListStyling awaiting')
+    await formLoaded('tag')
+    console.log('Resolved')
+    let trappings = document.getElementsByClassName('tag')
+    // .filter(elmnt => {
+    //     elmnt.innerText.includes('Trappings:')
+    // })[0]
+    console.log(trappings)
+}
+
+const changeStyling = (missingTrappings) => {
+    let status = document.getElementById('input-status');
+    status.style.color = 'red';
+    status.title = `Your status has taken a hit as you are lacking the following trappings: ${missingTrappings.join(', ')}`
+    trappingListStyling(missingTrappings)
 }
 
 export const trappingStatus = () => {
@@ -49,19 +69,11 @@ export const trappingStatus = () => {
         let currentCareer = entity.actor.careers.filter(career => career.data.current.value == true)[0]
         let targetTrappings = currentCareer.data.trappings;
         let currentTrappings = entity.actor.items.filter(item => item.type == "trapping");
-        let currentStatus = entity.actor.status;
-        let careerStatus = undefined
-        if(entity.actor.flags.tweaksCareerStatus){
-            careerStatus = entity.actor.flags.tweaksCareerStatus
-        } else {
-            careerStatus = currentCareer.data.status
-            game.actors.get(entity.actor._id).update({"flags.tweaksCareerStatus": careerStatus})
-        }
-        careerStatus = formatCareerStatus(careerStatus)
+        let currentStatus = entity.actor.data.details.status.value;
+        let careerStatus = formatCareerStatus(currentCareer.data.status)
+        let missingTrappings = [];
+        let statusAdjusted = false;
 
-        console.log('Before adjust')
-        console.log(entity.actor)
-        let missingCount = 0;
         targetTrappings.forEach(target => {
             let found = false;
             for(let i = 0; i < currentTrappings.length; i++){
@@ -70,28 +82,24 @@ export const trappingStatus = () => {
                     break;
                 }
             }
-            if(!found)
-                missingCount++;
+            if(!found && target != ""){
+                missingTrappings.push(target)}
         })
-        if(missingCount != 0){
-            let newStatus = calculateAdjustedStatus(missingCount, careerStatus)
-            console.log(newStatus + " " + currentStatus)
-            //&& missingCount != entity.actor.flags.tweaksMissingTrappings
-            if(newStatus.string != currentStatus ){
-                console.log(game.actors)
-                console.log(entity.actor._id)
-                console.log(game.actors.get(entity.actor._id))
-                // entity.actor.status = newStatus.string;
-                game.actors.get(entity.actor._id).update({"status": newStatus.string})
-                entity.actor.data.details.status.standing = newStatus.standing
-                entity.actor.data.details.status.tier = newStatus.tier
-                console.log(entity.actor.data.details.status)
-                // game.actors.get(entity.actor._id).update({"data.details.status.standing": newStatus.standing})
-                // game.actors.get(entity.actor._id).update({"data.details.status.tier": newStatus.tier})
-                game.actors.get(entity.actor._id).update({"flags.tweaksMissingTrappings": missingCount})
+
+        if(missingTrappings.length != 0){
+            let newStatus = calculateAdjustedStatus(missingTrappings.length, careerStatus)
+            if(newStatus != currentStatus ){
+                game.actors.get(entity.actor._id).update({"data.details.status.value" : newStatus})
+                game.actors.get(entity.actor._id).update({"flags.tweaksMissingTrappings": missingTrappings})
+                statusAdjusted = true;
             }
+        } else if(currentStatus != careerStatus){
+            game.actors.get(entity.actor._id).update({"data.details.status.value" : careerStatus})
         }
-        console.log('after adjust')
+
+        if(careerStatus != currentStatus || statusAdjusted)
+            changeStyling(missingTrappings)
+
         console.log(entity.actor)
     })
 }

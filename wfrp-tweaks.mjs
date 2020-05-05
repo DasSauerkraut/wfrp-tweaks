@@ -28,8 +28,8 @@ Hooks.on('init', async function() {
 
 	// Start Tweaks
 	macroHooks();
-	// if(game.settings.get("wfrp-tweaks", 'trappingStatus'))
-	// trappingStatus();
+	if(game.settings.get("wfrp-tweaks", 'trappingStatus'))
+		trappingStatus();
 	// if(game.settings.get("wfrp-tweaks", "integratedPenalties"))
 	// 	integratedPenalties();
 });
