@@ -32,54 +32,64 @@ const formatCareerStatus = (status) =>{
     return `${newStatus} ${status.standing}`
 }
 
-const formLoaded = (element) => {
-    return new Promise(resolve => {
-      function check() {
-        if (document.getElementsByClassName(element)) {
-            console.log('elements found!')
-          resolve();
-        } else {
-          setTimeout(check, 30);
-        }
-      }
-      check();
-    })
-  }
-
-const trappingListStyling = async(missingTrappings) => {
-    console.log('trappingListStyling awaiting')
-    await formLoaded('tag')
-    console.log('Resolved')
-    let trappings = document.getElementsByClassName('tag')
-    // .filter(elmnt => {
-    //     elmnt.innerText.includes('Trappings:')
-    // })[0]
-    console.log(trappings)
-}
-
 const changeStyling = (missingTrappings) => {
     let status = document.getElementById('input-status');
     status.style.color = 'red';
     status.title = `Your status has taken a hit as you are lacking the following trappings: ${missingTrappings.join(', ')}`
-    trappingListStyling(missingTrappings)
 }
 
 export const trappingStatus = () => {
     Hooks.on('renderActorSheet', (sheet, settings, entity)  => {
         let currentCareer = entity.actor.careers.filter(career => career.data.current.value == true)[0]
         let targetTrappings = currentCareer.data.trappings;
-        let currentTrappings = entity.actor.items.filter(item => item.type == "trapping");
+        let currentTrappings = entity.actor.items.filter(item => item.type == "trapping" 
+        || item.type == "weapon"
+        || item.type == "armour"
+        || item.type == "container"
+        || item.type == "ammunition");
         let currentStatus = entity.actor.data.details.status.value;
         let careerStatus = formatCareerStatus(currentCareer.data.status)
         let missingTrappings = [];
         let statusAdjusted = false;
 
+        console.log(currentTrappings)
         targetTrappings.forEach(target => {
             let found = false;
-            for(let i = 0; i < currentTrappings.length; i++){
-                if(currentTrappings[i].name == target){
-                    found = true;
-                    break;
+            if (target.includes(' or ')){
+                let targets = target.split(' or ')
+                for(let i = 0; i < currentTrappings.length; i++){
+                    if(targets[0].includes(currentTrappings[i].name) 
+                    || targets[1].includes(currentTrappings[i].name)
+                    || currentTrappings[i].name == targets[0]
+                    || currentTrappings[i].name == targets[1]){
+                        found = true;
+                        break;
+                    }
+                }
+            } else if (target.includes(' and ')){
+                let targets = target.split(' and ');
+                let target1Found = false;
+                let target2Found = false;
+                for(let i = 0; i < currentTrappings.length; i++){
+                    if(targets[0].includes(currentTrappings[i].name) || currentTrappings[i].name == targets[0]){
+                        target1Found = true;
+                    }
+                    if(targets[1].includes(currentTrappings[i].name) || currentTrappings[i].name == targets[1]) {
+                        target2Found = true;
+                    }
+                    if(target1Found && target2Found){
+                        found = true;
+                        break;
+                    }
+                }
+            } else {
+                console.log('Checking')
+                for(let i = 0; i < currentTrappings.length; i++){
+                    console.log(`${target} ${currentTrappings[i].name}`)
+                    if(target.includes(currentTrappings[i].name) || currentTrappings[i].name == target){
+                        found = true;
+                        break;
+                    }
                 }
             }
             if(!found && target != ""){
