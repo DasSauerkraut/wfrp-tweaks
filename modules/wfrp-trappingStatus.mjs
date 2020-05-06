@@ -52,7 +52,7 @@ export const trappingStatus = () => {
         let missingTrappings = [];
         let statusAdjusted = false;
 
-        console.log(currentTrappings)
+        // console.log(currentTrappings)
         targetTrappings.forEach(target => {
             let found = false;
             if (target.includes(' or ')){
@@ -83,9 +83,9 @@ export const trappingStatus = () => {
                     }
                 }
             } else {
-                console.log('Checking')
+                // console.log('Checking')
                 for(let i = 0; i < currentTrappings.length; i++){
-                    console.log(`${target} ${currentTrappings[i].name}`)
+                    // console.log(`${target} ${currentTrappings[i].name}`)
                     if(target.includes(currentTrappings[i].name) || currentTrappings[i].name == target){
                         found = true;
                         break;
@@ -110,6 +110,6 @@ export const trappingStatus = () => {
         if(careerStatus != currentStatus || statusAdjusted)
             changeStyling(missingTrappings)
 
-        console.log(entity.actor)
+        // console.log(entity.actor)
     })
 }
