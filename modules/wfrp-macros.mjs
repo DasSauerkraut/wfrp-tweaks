@@ -3,6 +3,7 @@ export const macroHooks = function() {
         if (data.item.type == "spell" || data.item.type == "prayer" || data.item.type == "weapon"){
           let currentMacro = data.item.flags["wfrp-macros"] || "";
           let currentAtkMacro = data.item.flags["wfrp-atk-macros"] || "";
+          let currentDefMacro = data.item.flags["wfrp-def-macros"] || "";
 
           let actorId = ""
           if (sheet.item.actor)
@@ -43,6 +44,25 @@ export const macroHooks = function() {
             </div>
           </div>`
           )
+
+          let macroDefInput = $(`
+          <div class="form-group" data-actor-id="${actorId}" data-item-id="${sheet.item.id}">
+            <label class="label-text">Macro Executed after Successfully Defending against an Attack</label>
+          </div>
+          <div class="form-group" data-actor-id="${actorId}" data-item-id="${sheet.item.id}">
+            <label class="label-text skills-textarea">Macro Type</label>
+            <select name=${currentDefMacro.type} data-dtype="String"> 
+              <option value="chat">Chat</option>
+              <option value="script">Script</option>
+            </select>
+          </div>
+          <div class="form-group" data-actor-id="${actorId}" data-item-id="${sheet.item.id}">
+            <label class="label-text skills-textarea">Macro</label>
+            <div class="input-box skills-textarea">
+              <textarea class="input-text" type="text" data-dtype="String">${currentDefMacro.text}</textarea>
+            </div>
+          </div>`
+          )
           
 
           macroInput.find("select")[0].children[0].selected = (currentMacro.type == "chat" ? true : false)
@@ -50,6 +70,9 @@ export const macroHooks = function() {
 
           macroAtkInput.find("select")[0].children[0].selected = (currentAtkMacro.type == "chat" ? true : false)
           macroAtkInput.find("select")[0].children[1].selected = (currentAtkMacro.type == "script" ? true : false)
+
+          macroDefInput.find("select")[0].children[0].selected = (currentDefMacro.type == "chat" ? true : false)
+          macroDefInput.find("select")[0].children[1].selected = (currentDefMacro.type == "script" ? true : false)
     
           macroInput.find("textarea").on("change", function(event, sheet) {
             let actorId = $(event.currentTarget).parents(".form-group").attr("data-actor-id")
@@ -80,11 +103,9 @@ export const macroHooks = function() {
     
             if (actorId){
               game.actors.get(actorId).updateEmbeddedEntity("OwnedItem", {_id : itemId, "flags.wfrp-atk-macros.text" : event.currentTarget.value})
-              console.log(game.actors.get(actorId))
             }
             else if (itemId){
               game.items.get(itemId).update({"flags.wfrp-atk-macros.text" : event.currentTarget.value})
-              console.log(game.items.get(itemId))
             }
           })
           macroAtkInput.find("select").on("change", function(event, sheet) {
@@ -93,16 +114,39 @@ export const macroHooks = function() {
     
             if (actorId){
               game.actors.get(actorId).updateEmbeddedEntity("OwnedItem", {_id : itemId, "flags.wfrp-atk-macros.type" : event.currentTarget.value})
-              console.log(game.actors.get(actorId))
             }
             else if (itemId){
               game.items.get(itemId).update({"flags.wfrp-atk-macros.type" : event.currentTarget.value})
-              console.log(game.items.get(itemId))
+            }
+          })
+
+          macroDefInput.find("textarea").on("change", function(event, sheet) {
+            let actorId = $(event.currentTarget).parents(".form-group").attr("data-actor-id")
+            let itemId = $(event.currentTarget).parents(".form-group").attr("data-item-id")
+    
+            if (actorId){
+              game.actors.get(actorId).updateEmbeddedEntity("OwnedItem", {_id : itemId, "flags.wfrp-def-macros.text" : event.currentTarget.value})
+            }
+            else if (itemId){
+              game.items.get(itemId).update({"flags.wfrp-def-macros.text" : event.currentTarget.value})
+            }
+          })
+          macroDefInput.find("select").on("change", function(event, sheet) {
+            let actorId = $(event.currentTarget).parents(".form-group").attr("data-actor-id")
+            let itemId = $(event.currentTarget).parents(".form-group").attr("data-item-id")
+    
+            if (actorId){
+              game.actors.get(actorId).updateEmbeddedEntity("OwnedItem", {_id : itemId, "flags.wfrp-def-macros.type" : event.currentTarget.value})
+            }
+            else if (itemId){
+              game.items.get(itemId).update({"flags.wfrp-def-macros.type" : event.currentTarget.value})
             }
           })
           html.find(".details").append(macroInput)
-          if(data.item.type == "weapon")
+          if(data.item.type == "weapon"){
             html.find(".details").append(macroAtkInput)
+            html.find(".details").append(macroDefInput)
+          }
         }
     } )
     
@@ -146,22 +190,24 @@ export const macroHooks = function() {
 
       if(result.winner == "attacker" && result.attackerTestResult.preData.function == "rollWeaponTest"){
         atkMacro = result.attackerTestResult.weapon.flags["wfrp-atk-macros"];
-        if(atkMacro.type == undefined)
+        if(atkMacro != undefined && atkMacro.type == undefined)
           atkMacro.type = 'chat';
       }
 
-      // if(result.defenderTestResult.preData.function == "rollWeaponTest"){
-      //   defMacroText = result.defenderTestResult.weapon.flags["wfrp-macros"];
-      //   defMacroType = result.defenderTestResult.weapon.flags["wfrp-macros-type"];
-      // }
+      if(result.winner == "defender" && result.defenderTestResult.preData.function == "rollWeaponTest"){
+        defMacro = result.defenderTestResult.weapon.flags["wfrp-def-macros"];
+        if(defMacro != undefined && defMacro.type == undefined)
+          defMacro.type = 'chat';
+      }
+      console.log(result)
 
       if(result.winner == "attacker" && atkMacro.text != undefined && atkMacro.text != ""){
         let compiledMacro = new Macro({type : atkMacro.type, author: game.user.id, name : result.attackerTestResult.weapon.name, command : atkMacro.text})
-        compiledMacro.execute()
-      } 
-      // else if(result.winner == "defender" && defMacroText != undefined && defMacroText != ""){
-      //   let macro = new Macro({type : defMacroType, author: game.user.id, name : result.defenderTestResult.weapon.name, command : defMacroText})
-      //   macro.execute()
-      // }
+        let pkg = JSON.stringify(result)
+        compiledMacro.execute(pkg);
+      } else if(result.winner == "defender" && defMacro.text != undefined && defMacro.text != ""){
+        let compiledMacro = new Macro({type : defMacro.type, author: game.user.id, name : result.defenderTestResult.weapon.name, command : defMacro.text})
+        compiledMacro.execute(result.speakerAttack, result.speakerDefend, result.attackerTestResult, result.defenderTestResult, result.damage.value, result.hitloc.value)
+      }
     })
 }
