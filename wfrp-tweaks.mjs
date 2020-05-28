@@ -11,6 +11,8 @@ import { registerSettings } from './modules/settings.mjs';
 import { preloadTemplates } from './modules/preloadTemplates.mjs';
 import { macroHooks } from './modules/wfrp-macros.mjs'
 import { trappingStatus } from './modules/wfrp-trappingStatus.mjs';
+import { spendAdvantage } from './modules/wfrp-spendAdvantage.mjs';
+import { advantageBonus } from './modules/wfrp-advantageBonus.mjs';
 import { integratedPenalties } from './modules/wfrp-integratedPenalties.mjs';
 
 /* ------------------------------------ */
@@ -30,6 +32,10 @@ Hooks.on('init', async function() {
 	macroHooks();
 	if(game.settings.get("wfrp-tweaks", 'trappingStatus'))
 		trappingStatus();
+	if(game.settings.get("wfrp-tweaks", 'spendAdvantage'))
+		spendAdvantage();
+	else if(game.settings.get("wfrp-tweaks", 'advantageBonus') != 10)
+		advantageBonus();
 	// if(game.settings.get("wfrp-tweaks", "integratedPenalties"))
 	// 	integratedPenalties();
 });

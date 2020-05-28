@@ -40,6 +40,8 @@ const changeStyling = (missingTrappings) => {
 
 export const trappingStatus = () => {
     Hooks.on('renderActorSheet', (sheet, settings, entity)  => {
+        if(!entity.actor.data.details.status)
+            return;
         let currentCareer = entity.actor.careers.filter(career => career.data.current.value == true)[0]
         let targetTrappings = currentCareer.data.trappings;
         let currentTrappings = entity.actor.items.filter(item => item.type == "trapping" 
