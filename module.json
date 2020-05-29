@@ -13,7 +13,7 @@
     "wfrp-tweaks.mjs",
     "wfrp-macros.mjs",
     "modules/settings.mjs",
-    "modules/preloadTemplates.mjs",
+    "modules/preloadTemplates.mjs"
   ],
   "styles": [ "./css/wfrp-tweaks-style.css" ],
   "packs": []
