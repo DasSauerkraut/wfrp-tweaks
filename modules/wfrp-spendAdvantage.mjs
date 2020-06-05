@@ -5,6 +5,7 @@ export const spendAdvantage = () => {
         if(document.getElementsByName('advantage')[0]){
             startingAdvantage = document.getElementsByName('advantage')[0].value
             let advantageField = document.getElementsByClassName('form-group')[0]
+            document.getElementsByName('testModifier')[0].value = 0;
 
             const adjustMod = () => {
                 advantage = parseInt(document.getElementsByName('advantage')[0].value)
