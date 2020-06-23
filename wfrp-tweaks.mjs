@@ -53,7 +53,7 @@ Hooks.once('setup', function() {
 /* ------------------------------------ */
 Hooks.once('ready', function() {
 	// Do anything once the module is ready
-	// CONFIG.debug.hooks = true;
+	CONFIG.debug.hooks = true;
 });
 
 // Add any additional hooks if necessary

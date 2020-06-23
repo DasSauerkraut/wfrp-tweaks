@@ -31,8 +31,33 @@ export const spendAdvantage = () => {
         }
     })
 
-    Hooks.on("wfrp4e:rollTest", (roll, cardOptions) => {
-        let target = canvas.tokens.get(cardOptions.speaker.token)
+    const updateAdvantage = (token) => {
+        let target = canvas.tokens.get(token)
         target.actor.update({"data.status.advantage.value" : `${startingAdvantage - advantage}`});
+        advantage = 0;
+    }
+
+    Hooks.on("wfrp4e:rollTest", (roll, cardOptions) => {
+        updateAdvantage(cardOptions.speaker.token)
+    })
+
+    Hooks.on("wfrp4e:rollWeaponTest", (roll, cardOptions) => {
+        updateAdvantage(cardOptions.speaker.token)
+    })
+
+    Hooks.on("wfrp4e:rollCastTest", (roll, cardOptions) => {
+        updateAdvantage(cardOptions.speaker.token)
+    })
+
+    Hooks.on("wfrp4e:rollChannelTest", (roll, cardOptions) => {
+        updateAdvantage(cardOptions.speaker.token)
+    })
+
+    Hooks.on("wfrp4e:rollPrayerTest", (roll, cardOptions) => {
+        updateAdvantage(cardOptions.speaker.token)
+    })
+
+    Hooks.on("wfrp4e:rollTraitTest", (roll, cardOptions) => {
+        updateAdvantage(cardOptions.speaker.token)
     })
 }
